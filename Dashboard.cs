@@ -53,7 +53,7 @@ namespace Users
                     Connbtn.Text = "Disconnect";
                     statLbl.Text = "Connected to broker";
                     connect = true;
-                    MessageBox.Show("Topics:" + topic);
+                    
                     try
                     {
                         con.Open();
