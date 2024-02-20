@@ -32,6 +32,8 @@
             Connbtn = new Button();
             serverData = new DataGridView();
             filterMyData = new CheckBox();
+            searchBtn = new Button();
+            searchText = new TextBox();
             ((System.ComponentModel.ISupportInitialize)serverData).BeginInit();
             SuspendLayout();
             // 
@@ -76,11 +78,31 @@
             filterMyData.UseVisualStyleBackColor = true;
             filterMyData.CheckedChanged += filterMyData_CheckedChanged;
             // 
+            // searchBtn
+            // 
+            searchBtn.Location = new Point(408, 93);
+            searchBtn.Name = "searchBtn";
+            searchBtn.Size = new Size(94, 29);
+            searchBtn.TabIndex = 13;
+            searchBtn.Text = "Search";
+            searchBtn.UseVisualStyleBackColor = true;
+            // 
+            // searchText
+            // 
+            searchText.Location = new Point(236, 95);
+            searchText.Name = "searchText";
+            searchText.PlaceholderText = "topic/#";
+            searchText.Size = new Size(166, 27);
+            searchText.TabIndex = 12;
+            searchText.TextChanged += searchText_TextChanged;
+            // 
             // Dashboard
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1849, 502);
+            Controls.Add(searchBtn);
+            Controls.Add(searchText);
             Controls.Add(filterMyData);
             Controls.Add(serverData);
             Controls.Add(statLbl);
@@ -101,5 +123,7 @@
         private Button Connbtn;
         private DataGridView serverData;
         private CheckBox filterMyData;
+        private Button searchBtn;
+        private TextBox searchText;
     }
 }

@@ -43,6 +43,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -59,6 +67,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -76,6 +92,16 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_644F108146A14844976380B4DD89D035"
+                {
+                "Name" = "8:.NET Core"
+                "Message" = "8:[VSDNETCOREMSG]"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:https://dotnet.microsoft.com/download/dotnet-core/[NetCoreVerMajorDotMinor]"
+                "IsNETCore" = "11:TRUE"
+                "Architecture" = "2:0"
+                "Runtime" = "2:0"
+                }
             }
         }
         "File"
@@ -277,6 +303,20 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_C0FC0FFFF83E4D66B6E37DEC0117613D"
+            {
+            "Name" = "8:BMC User"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_1E4D488F0D9D470D905F2BE22ECCBE86"
+            "Folder" = "8:_656300A45E034E188AB9E78D97D1831E"
+            "WorkingFolder" = "8:_54ECA26191164E9A84F1A2A95CE6EFA7"
+            "Icon" = "8:"
+            "Feature" = "8:"
+            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DFBC0A26DE6C44A28617F2FF207EDC8F"
             {
             "Name" = "8:BMC User"
@@ -288,7 +328,7 @@
             "Target" = "8:_1E4D488F0D9D470D905F2BE22ECCBE86"
             "Folder" = "8:_BF50E1EB951F46E0A6928DCF2479DBBE"
             "WorkingFolder" = "8:_54ECA26191164E9A84F1A2A95CE6EFA7"
-            "Icon" = "8:"
+            "Icon" = "8:_7CD7C05511674534BE1E2ECDDDD6A4DB"
             "Feature" = "8:"
             }
         }

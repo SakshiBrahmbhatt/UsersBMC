@@ -17,19 +17,16 @@ namespace Users
         private MqttClient mqttClient;
         private List<string> subscribedTopics = new List<string>();
         private List<MessageData> messages = new List<MessageData>();
-        MySqlConnection con = new MySqlConnection("SERVER = 192.168.1.9; DATABASE = sys; UID = db; PASSWORD = Saks@2468;");
-
-        private string username;
-        private string password;
+        MySqlConnection con = new MySqlConnection("SERVER = 192.168.1.7; DATABASE = sys; UID = db; PASSWORD = Saks@2468;");
         private string device;
+        private string topic;
 
-        public Dashboard(string username, string password, string device)
+        public Dashboard(string device, string topic)
         {
             InitializeComponent();
-            this.username = username;
-            this.password = password;
             this.device = device;
             this.FormClosed += Dashboard_FormClosed;
+            this.topic = topic;
         }
 
         private void Dashboard_FormClosed(object? sender, FormClosedEventArgs e)
@@ -56,7 +53,7 @@ namespace Users
                     Connbtn.Text = "Disconnect";
                     statLbl.Text = "Connected to broker";
                     connect = true;
-
+                    MessageBox.Show("Topics:" + topic);
                     try
                     {
                         con.Open();
@@ -88,17 +85,42 @@ namespace Users
             try
             {
                 con.Open();
-                con.Close();
+                string query = "SELECT * FROM bmcmqtt WHERE Topic COLLATE utf8mb4_bin = @top";
+                MySqlDataAdapter da = new MySqlDataAdapter(query, con);
+                DataTable table = new DataTable();
+
+                if (topic.Contains(','))
+                {
+                    string[] topicArray = topic.Split(',');
+
+                    foreach (string topicItem in topicArray)
+                    {
+                        string trimmedTopic = topicItem.Trim();
+                        da.SelectCommand.Parameters.Clear();
+                        da.SelectCommand.Parameters.AddWithValue("@top", trimmedTopic);
+                        DataTable tempTable = new DataTable();
+                        da.Fill(tempTable);
+                        table.Merge(tempTable);
+                    }
+                }
+                else
+                {
+                    da.SelectCommand.Parameters.AddWithValue("@top", topic);
+                    da.Fill(table);
+                }
+
+                serverData.DataSource = table;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Cannot open connection!");
             }
-            MySqlDataAdapter da = new MySqlDataAdapter("select * from bmcmqtt", con);
-            DataSet ds = new DataSet();
-            da.Fill(ds);
-            serverData.DataSource = ds.Tables[0];
+            finally
+            {
+                con.Close();
+            }
         }
+
 
         private void MqttClient_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
@@ -138,12 +160,31 @@ namespace Users
                         cmd.Parameters.AddWithValue("@Date", parts[20].Substring(0, 12));
                         cmd.Parameters.AddWithValue("@Topic", topic);
                         cmd.ExecuteNonQuery();
+                        string query = "SELECT * FROM bmcmqtt WHERE Topic COLLATE utf8mb4_bin = @top";
+                        MySqlDataAdapter da = new MySqlDataAdapter(query, con);
+                        DataTable table = new DataTable();
 
-                        // Retrieve data from the database and update the DataGridView
-                        MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM bmcmqtt", con);
-                        DataTable dt = new DataTable();
-                        da.Fill(dt);
-                        serverData.DataSource = dt;
+                        if (topic.Contains(','))
+                        {
+                            string[] topicArray = topic.Split(',');
+
+                            foreach (string topicItem in topicArray)
+                            {
+                                string trimmedTopic = topicItem.Trim();
+                                da.SelectCommand.Parameters.Clear();
+                                da.SelectCommand.Parameters.AddWithValue("@top", trimmedTopic);
+                                DataTable tempTable = new DataTable();
+                                da.Fill(tempTable);
+                                table.Merge(tempTable);
+                            }
+                        }
+                        else
+                        {
+                            da.SelectCommand.Parameters.AddWithValue("@top", topic);
+                            da.Fill(table);
+                        }
+
+                        serverData.DataSource = table;
                     }
                     catch (Exception ex)
                     {
@@ -161,33 +202,21 @@ namespace Users
             try
             {
                 subscribedTopics.Clear();
-
-                string query = "SELECT * FROM users WHERE username = @user AND password = @pass";
-                MySqlCommand cmd = new MySqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@user", username);
-                cmd.Parameters.AddWithValue("@pass", password);
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                if (topic.Contains(','))
                 {
-                    while (reader.Read())
-                    {
-                        string topics = reader["Topic"].ToString();
-                        if (topics.Contains(','))
-                        {
-                            string[] topicArray = topics.Split(',');
+                    string[] topicArray = topic.Split(',');
 
-                            foreach (string topic in topicArray)
-                            {
-                                string trimmedTopic = topic.Trim();
-                                subscribedTopics.Add(trimmedTopic);
-                                mqttClient.Subscribe(new string[] { trimmedTopic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
-                            }
-                        }
-                        else
-                        {
-                            subscribedTopics.Add(topics);
-                            mqttClient.Subscribe(new string[] { topics }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
-                        }
+                    foreach (string topic in topicArray)
+                    {
+                        string trimmedTopic = topic.Trim();
+                        subscribedTopics.Add(trimmedTopic);
+                        mqttClient.Subscribe(new string[] { trimmedTopic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
                     }
+                }
+                else
+                {
+                    subscribedTopics.Add(topic);
+                    mqttClient.Subscribe(new string[] { topic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
                 }
             }
             catch (Exception ex)
@@ -203,7 +232,7 @@ namespace Users
                 try
                 {
                     con.Open();
-                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM bmcmqtt WHERE DeviceId = @deviceId", con);
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM bmcmqtt WHERE DeviceId COLLATE utf8mb4_bin = @deviceId", con);
                     cmd.Parameters.AddWithValue("@deviceId", device);
 
                     MySqlDataAdapter da = new MySqlDataAdapter(cmd);
@@ -224,8 +253,55 @@ namespace Users
             {
                 try
                 {
+                    con.Open();
+                    string query = "SELECT * FROM bmcmqtt WHERE Topic COLLATE utf8mb4_bin = @top";
+                    MySqlDataAdapter da = new MySqlDataAdapter(query, con);
+                    DataTable table = new DataTable();
 
-                    MySqlDataAdapter da = new MySqlDataAdapter("SELECT * FROM bmcmqtt", con);
+                    if (topic.Contains(','))
+                    {
+                        string[] topicArray = topic.Split(',');
+
+                        foreach (string topicItem in topicArray)
+                        {
+                            string trimmedTopic = topicItem.Trim();
+                            da.SelectCommand.Parameters.Clear();
+                            da.SelectCommand.Parameters.AddWithValue("@top", trimmedTopic);
+                            DataTable tempTable = new DataTable();
+                            da.Fill(tempTable);
+                            table.Merge(tempTable);
+                        }
+                    }
+                    else
+                    {
+                        da.SelectCommand.Parameters.AddWithValue("@top", topic);
+                        da.Fill(table);
+                    }
+
+                    serverData.DataSource = table;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error selecting from bmcmqtt table: " + ex.Message);
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        private void searchText_TextChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(searchText.Text))
+            {
+                try
+                {
+                    con.Open();
+                    MySqlCommand cmd = new MySqlCommand("SELECT * FROM bmcmqtt WHERE Topic COLLATE utf8mb4_bin = @Topic", con);
+                    cmd.Parameters.AddWithValue("@Topic", searchText.Text);
+
+                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
                     serverData.DataSource = dt;
@@ -238,6 +314,10 @@ namespace Users
                 {
                     con.Close();
                 }
+            }
+            else
+            {
+                MessageBox.Show("Enter the value to search the row");
             }
         }
     }
