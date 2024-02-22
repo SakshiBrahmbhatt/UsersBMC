@@ -6,7 +6,7 @@ namespace Users
 {
     public partial class Form1 : Form
     {
-        MySqlConnection con = new MySqlConnection("SERVER = 192.168.240.145; DATABASE = sys; UID = db; PASSWORD = Saks@2468;");
+        MySqlConnection con = new MySqlConnection("SERVER = 192.168.56.1; DATABASE = sys; UID = db; PASSWORD = Saks@2468;");
         String username, password;
         public Form1()
         {

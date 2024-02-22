@@ -17,7 +17,7 @@ namespace Users
         private MqttClient mqttClient;
         private List<string> subscribedTopics = new List<string>();
         private List<MessageData> messages = new List<MessageData>();
-        
+        MySqlConnection con = new MySqlConnection("SERVER = 192.168.56.1; DATABASE = sys; UID = db; PASSWORD = Saks@2468;");
         private string device;
         private string topic;
 
